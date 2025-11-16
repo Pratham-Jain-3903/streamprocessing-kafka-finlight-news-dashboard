@@ -15,7 +15,7 @@ FINLIGHT_API_KEY = os.getenv("FINLIGHT_API_KEY")
 FINLIGHT_API_URL = "https://api.finlight.me/v2/articles"  # from docs :contentReference[oaicite:0]{index=0}
 
 KAFKA_BOOTSTRAP = os.getenv("KAFKA_BOOTSTRAP", "localhost:9092")
-RAW_NEWS_TOPIC = os.getenv("RAW_NEWS_TOPIC", "raw_news")
+RAW_NEWS_TOPIC = os.getenv("RAW_NEWS_TOPIC", "rawnews")
 
 POLL_INTERVAL_SECONDS = int(os.getenv("POLL_INTERVAL_SECONDS", "300"))  # e.g. poll every 5 minutes
 PAGE_SIZE = int(os.getenv("PAGE_SIZE", "50"))

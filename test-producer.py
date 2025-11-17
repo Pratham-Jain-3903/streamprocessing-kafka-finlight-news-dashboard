@@ -11,7 +11,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # --- Configuration ---
-FINLIGHT_API_KEY = os.getenv("FINLIGHT_API_KEY")
+api_key = os.getenv("FINLIGHT_API_KEY", "sk_621d88dfcc31a1d3efa89a2873d394563f53bfd6fe1c7aec2ffd22e45d7b1d44")
+FINLIGHT_API_KEY = api_key
 FINLIGHT_API_URL = "https://api.finlight.me/v2/articles"  # from docs :contentReference[oaicite:0]{index=0}
 
 KAFKA_BOOTSTRAP = os.getenv("KAFKA_BOOTSTRAP", "localhost:9092")

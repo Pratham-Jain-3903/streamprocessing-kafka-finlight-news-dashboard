@@ -9,12 +9,17 @@ import os
 
 class NewsFetcher:
 
+    api_key = os.getenv("FINLIGHT_API_KEY", "sk_621d88dfcc31a1d3efa89a2873d394563f53bfd6fe1c7aec2ffd22e45d7b1d44")
+    fetch_news_post_url = "https://api.finlight.me/v2/articles"
+    fetch_news_sources_get_url = "https://api.finlight.me/v2/sources"
+
     def __init__(self):
         self.api_key = os.getenv("FINLIGHT_API_KEY", "sk_621d88dfcc31a1d3efa89a2873d394563f53bfd6fe1c7aec2ffd22e45d7b1d44")
         self.fetch_news_post_url = "https://api.finlight.me/v2/articles"
         self.fetch_news_sources_get_url = "https://api.finlight.me/v2/sources"
 
-    def fetch_news_post(self, query,sources=[None],exclude_sources=None,countries=None,language="en",from_date=None,to_date=None, order_by="publishDate",order="DESC",page_size=20, page_count=1):
+    @classmethod
+    def fetch_news_post(cls, query,sources=[None],exclude_sources=None,countries=None,language="en",from_date=None,to_date=None, order_by="publishDate",order="DESC",page_size=20, page_count=1):
         """
         Fetch news articles based on a query using POST request.
         demo curl : "curl -X 'POST' 'https://api.finlight.me/v2/articles' \
@@ -66,8 +71,8 @@ class NewsFetcher:
   ]
 }
         """
-        url = self.fetch_news_post_url
-        api_key = self.api_key
+        url = cls.fetch_news_post_url
+        api_key = cls.api_key
 
         json_body = {   
                         "sources": sources,
@@ -97,7 +102,8 @@ class NewsFetcher:
             print(f"Error: {response.status_code} - {response.text}")
             return []
 
-    def fetch_news_sources_get(self, language="en"):
+    @classmethod
+    def fetch_news_sources_get(cls, language="en"):
         """
         Fetch news sources using GET request.
 
@@ -151,8 +157,8 @@ class NewsFetcher:
         ]        
         """
 
-        url = self.fetch_news_sources_get_url
-        api_key = self.api_key
+        url = cls.fetch_news_sources_get_url
+        api_key = cls.api_key
 
         headers = {
             "accept": "*/*",

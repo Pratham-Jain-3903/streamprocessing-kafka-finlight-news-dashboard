@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Mercury Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-2.29.1.min.js"></script>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 20px; }
+      #controls { margin-bottom: 12px; }
+      table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+      th, td { border: 1px solid #ddd; padding: 8px; }
+      th { background: #f2f2f2; }
+    </style>
+  </head>
+  <body>
+    <h2>Mercury — Kafka Inspector</h2>
+    <div id="controls">
+      <label for="topics">Topic:</label>
+      <select id="topics"></select>
+      <label for="limit">Limit:</label>
+      <input id="limit" type="number" value="20" min="1" max="500" style="width:80px" />
+      <button id="load">Load</button>
+    </div>
+
+    <div id="plot" style="height:320px;"></div>
+
+    <div id="messages"></div>
+
+    <script>
+      async function fetchJSON(url){ const r = await fetch(url); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+
+      async function loadTopics(){
+        const topics = await fetchJSON('/topics');
+        const sel = document.getElementById('topics'); sel.innerHTML = '';
+        topics.forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o); });
+      }
+
+      function renderTable(msgs){
+        const container = document.getElementById('messages');
+        if(msgs.length===0){ container.innerHTML = '<p>No messages</p>'; return; }
+        let html = '<table><thead><tr><th>partition</th><th>offset</th><th>key</th><th>value</th></tr></thead><tbody>';
+        msgs.forEach(m=>{
+          html += `<tr><td>${m.partition}</td><td>${m.offset}</td><td>${JSON.stringify(m.key)}</td><td><pre style="white-space:pre-wrap">${JSON.stringify(m.value,null,2)}</pre></td></tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+      }
+
+      function plotSentiment(msgs){
+        // detect numeric 'sentiment' in message.value
+        const points = [];
+        msgs.forEach((m,i)=>{
+          const v = m.value;
+          if(v && typeof v==='object' && (v.sentiment!==undefined || v.sentiment_score!==undefined)){
+            const s = v.sentiment!==undefined? v.sentiment : v.sentiment_score;
+            if(typeof s === 'number') points.push({x:i, y:s, text: JSON.stringify(v)});
+          }
+        });
+        if(points.length===0){ document.getElementById('plot').innerHTML = '<p>No numeric sentiment found in messages to plot.</p>'; return; }
+        const data = [{ x: points.map(p=>p.x), y: points.map(p=>p.y), text: points.map(p=>p.text), mode:'lines+markers', type:'scatter' }];
+        Plotly.newPlot('plot', data, {margin:{t:20}, xaxis:{title:'message index'}, yaxis:{title:'sentiment'}});
+      }
+
+      document.getElementById('load').addEventListener('click', async ()=>{
+        try{
+          const topic = document.getElementById('topics').value;
+          const limit = Number(document.getElementById('limit').value)||20;
+          const msgs = await fetchJSON(`/topics/${encodeURIComponent(topic)}/messages?limit=${limit}`);
+          renderTable(msgs);
+          plotSentiment(msgs);
+        }catch(e){ alert('Error: '+e.message); }
+      });
+
+      // init
+      loadTopics().catch(e=>console.error(e));
+    </script>
+  </body>
+</html>

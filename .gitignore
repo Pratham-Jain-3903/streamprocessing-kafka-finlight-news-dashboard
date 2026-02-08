@@ -1,14 +1,28 @@
+# Python virtual environments
 venv/
 .venv/
-
-*.log
-*.txt
 env/
-.env
+
+# Python cache
 __pycache__/
 *.pyc
-states/
+*.pyo
+*.pyd
 
-misc/*
-*/job_checker.py
-*/out_jobs.csv
+# Environment variables
+.env
+.env.*
+
+# Runtime outputs (generated data, logs, state)
+data/
+logs/
+trades/
+states/
+volumes/
+
+# Misc scripts and credentials
+misc/
+*.log
+
+# IDE
+.idea/

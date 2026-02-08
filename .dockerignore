@@ -1,0 +1,25 @@
+# Python environment / caches
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+
+# Git / local config
+.git
+.gitignore
+misc/git_cred.txt
+
+# Dev-mounted folders - do NOT copy into image
+logs
+ml-models
+config
+volumes
+volumes/*
+
+# Build artifacts / editors
+*.egg-info
+.build
+.dist
+.idea
+.vscode

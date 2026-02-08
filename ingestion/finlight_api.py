@@ -1,25 +1,45 @@
-import requests 
+import requests
 import pandas as pd
 import os
 
 
-#-----------------------------#
+# -----------------------------#
 # NewsFetcher Class fetches news articles from the NewsAPI every few minutes or hours
-#-----------------------------#
+# -----------------------------#
+
 
 class NewsFetcher:
 
-    api_key = os.getenv("FINLIGHT_API_KEY", "sk_621d88dfcc31a1d3efa89a2873d394563f53bfd6fe1c7aec2ffd22e45d7b1d44")
+    api_key = os.getenv(
+        "FINLIGHT_API_KEY",
+        "sk_621d88dfcc31a1d3efa89a2873d394563f53bfd6fe1c7aec2ffd22e45d7b1d44",
+    )
     fetch_news_post_url = "https://api.finlight.me/v2/articles"
     fetch_news_sources_get_url = "https://api.finlight.me/v2/sources"
 
     def __init__(self):
-        self.api_key = os.getenv("FINLIGHT_API_KEY", "sk_621d88dfcc31a1d3efa89a2873d394563f53bfd6fe1c7aec2ffd22e45d7b1d44")
+        self.api_key = os.getenv(
+            "FINLIGHT_API_KEY",
+            "sk_621d88dfcc31a1d3efa89a2873d394563f53bfd6fe1c7aec2ffd22e45d7b1d44",
+        )
         self.fetch_news_post_url = "https://api.finlight.me/v2/articles"
         self.fetch_news_sources_get_url = "https://api.finlight.me/v2/sources"
 
     @classmethod
-    def fetch_news_post(cls, query,sources=[None],exclude_sources=None,countries=None,language="en",from_date=None,to_date=None, order_by="publishDate",order="DESC",page_size=20, page_count=1):
+    def fetch_news_post(
+        cls,
+        query,
+        sources=[None],
+        exclude_sources=None,
+        countries=None,
+        language="en",
+        from_date=None,
+        to_date=None,
+        order_by="publishDate",
+        order="DESC",
+        page_size=20,
+        page_count=1,
+    ):
         """
         Fetch news articles based on a query using POST request.
         demo curl : "curl -X 'POST' 'https://api.finlight.me/v2/articles' \
@@ -74,23 +94,23 @@ class NewsFetcher:
         url = cls.fetch_news_post_url
         api_key = cls.api_key
 
-        json_body = {   
-                        "sources": sources,
-                        "excludeSources": exclude_sources,
-                        "countries": countries,
-                        "from": from_date,
-                        "to": to_date,
-                        "language": language,
-                        "pageSize": page_size,
-                        "page": page_count,
-                        "orderBy": order_by,
-                        "order": order
-                    }
-        
+        json_body = {
+            "sources": sources,
+            "excludeSources": exclude_sources,
+            "countries": countries,
+            "from": from_date,
+            "to": to_date,
+            "language": language,
+            "pageSize": page_size,
+            "page": page_count,
+            "orderBy": order_by,
+            "order": order,
+        }
+
         headers = {
             "accept": "application/json",
             "Content-Type": "application/json",
-            "X-API-KEY": api_key
+            "X-API-KEY": api_key,
         }
 
         response = requests.post(url, json=json_body, headers=headers)
@@ -160,10 +180,7 @@ class NewsFetcher:
         url = cls.fetch_news_sources_get_url
         api_key = cls.api_key
 
-        headers = {
-            "accept": "*/*",
-            "X-API-KEY": api_key
-        }
+        headers = {"accept": "*/*", "X-API-KEY": api_key}
 
         response = requests.get(url, headers=headers)
 
@@ -173,7 +190,7 @@ class NewsFetcher:
         else:
             print(f"Error: {response.status_code} - {response.text}")
             return []
-        
+
 
 if __name__ == "__main__":
     news_fetcher = NewsFetcher()
@@ -190,7 +207,7 @@ if __name__ == "__main__":
         page_size=2,
         page_count=1,
         order_by="createdAt",
-        order="DESC"
+        order="DESC",
     )
     print("Fetched Articles:")
     for article in articles:

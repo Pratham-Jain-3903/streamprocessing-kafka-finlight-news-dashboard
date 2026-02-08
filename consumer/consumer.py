@@ -2,7 +2,7 @@ from kafka import KafkaConsumer
 import json
 
 consumer = KafkaConsumer(
-    'raw_news',
+    'news_raw',
     bootstrap_servers=['localhost:9092'],
     auto_offset_reset='latest',
     enable_auto_commit=True,

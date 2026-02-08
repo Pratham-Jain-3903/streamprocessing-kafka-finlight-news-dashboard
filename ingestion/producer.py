@@ -64,12 +64,27 @@ class NewsPublisher:
       self.topic = topic
       self.state_file = f"{self._state_files_dir}/{topic.topic_name}_state.json"
       
-      # # load last published timestamp from state file (expects None if not present)
-      _last = self.load_last_published_at()
-      self.last_published_at = _last if _last is not None else None
-      self.articles_count = 0
+      # ensure state dir exists
+      os.makedirs(self._state_files_dir, exist_ok=True)
 
-      self.article_ids_published = set()
+      # load state if present, else initialize new state
+      if os.path.exists(self.state_file):      
+         self.article_ids_published = set()
+         self.load_state()
+      else:
+         self.last_published_at = None
+         self.articles_count = 0
+         self.article_ids_published = set()
+         # persist an initial empty state so subsequent runs can load it
+         try:
+            with open(self.state_file, "w") as f:
+               json.dump({
+               "last_published_at": self.last_published_at,
+               "articles_count": self.articles_count,
+               "article_ids_published": []
+               }, f)
+         except Exception as e:
+            logger.warning(f"Unable to create initial state file {self.state_file}: {e}")
 
    def load_last_published_at(self):
       """
@@ -84,6 +99,21 @@ class NewsPublisher:
       except Exception as e:
          logger.warning(f"Unable to load state file {self.state_file}: {e}")
          return None
+      
+   def load_state(self):
+      """
+      Load entire state from state file
+      """
+      if not os.path.exists(self.state_file):
+         return
+      try:
+         with open(self.state_file, "r") as f:
+            state = json.load(f)
+            self.last_published_at = state.get("last_published_at", None)
+            self.articles_count = state.get("articles_count", 0)
+            self.article_ids_published = set(state.get("article_ids_published", []))
+      except Exception as e:
+         logger.warning(f"Unable to load state file {self.state_file}: {e}")
 
    @classmethod
    def _get_all_news_sources(cls, language="en") -> list:
@@ -96,7 +126,7 @@ class NewsPublisher:
                 },
       return list of source domains
       """
-      list_sources =  [source.get('domain') for source in NewsFetcher.fetch_all_news_sources(language=language)]
+      list_sources =  [source.get('domain') for source in NewsFetcher.fetch_news_sources_get(language=language)]
       return list_sources
 
    def fetch_news(self, from_date=None, to_date=None, page_count=1):
@@ -168,9 +198,10 @@ class NewsPublisher:
 
    def save_state(self):
       state = {
-         "last_published_at": self.last_published_at
+         "last_published_at": self.last_published_at,
+         "articles_count": self.articles_count,
+         "article_ids_published": list(self.article_ids_published)
       }
-      os.makedirs(self._state_files_dir, exist_ok=True)
       try:
          with open(self.state_file, "w") as f:
             json.dump(state, f)
@@ -182,7 +213,7 @@ class NewsPublisher:
 if __name__ == "__main__":
    # testing topic config for nvidia news
    nvidia = TopicConfig("nvidia-news")
-   nvidia.sources = ["www.yahoo.com", "abcnews.go.com", "cute_pink_glasses_girl.com"]
+   nvidia.sources = ["www.yahoo.com", "abcnews.go.com"]
    nvidia.countries = ["IN", "US"]
    nvidia.key_word = "nvidia"
    nvidia.language = "en"
@@ -199,7 +230,7 @@ if __name__ == "__main__":
    lenskart.exclude_sources = ["www.aljazeera.com"]
 
    publisher = NewsPublisher(lenskart)
-   articles = publisher.fetch_news()
-   for article in articles:
-      print(article)
-      print("-----")
+   publisher.stateful_publish()
+
+
+

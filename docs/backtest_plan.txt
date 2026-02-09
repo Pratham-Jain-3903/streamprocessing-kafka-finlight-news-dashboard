@@ -1,0 +1,28 @@
+Backtest plan: Sentiment-driven long-only strategy (10 S&P tech stocks, 2024–Jan 2026)
+
+Goal:
+- Build a configurable, reproducible backtest that combines sentiment filters with trend indicators and optimizes parameters with Optuna.
+
+Data sources:
+- OHLCV: `yfinance` (download and store as Parquet/DuckDB)
+- News: Finlight API (or fallback to NewsAPI/GDELT if coverage insufficient)
+
+Strategy outline:
+- Entry: Trend indicator (e.g., SMA crossover or ROC > threshold) AND sentiment filter (rolling sentiment > threshold)
+- Exit: ATR-based trailing stop, stop-loss %, or holding-period cap
+- Position sizing: fixed % per trade (configurable)
+
+Configurable parameters (examples):
+- `sentiment_lookback`, `sentiment_threshold`, `sma_period`, `roc_period`, `stop_loss_pct`, `trailing_stop_atr_mult`, `position_size_pct`, `hold_period`
+
+Validation & optimization:
+- Use walk-forward validation (rolling train/test windows)
+- Optimize for Sharpe ratio with a max-drawdown constraint (reject configs with DD > 25%)
+- Use Optuna (Bayesian) or random search for efficiency
+
+Metrics to record (per your checklist):
+- Period, Total P&L, Win Rate, Total Trades, Avg/Median P&L, Avg Win/Loss, Max DD, DD Start/End/Duration, Return-to-DD (Calmar), Largest Win/Loss, Expectancy, Winning/Losing Streaks, Sharpe
+
+Deliverables:
+- `scripts/backtest_runner.py` (or Jupyter notebook) that loads data, aligns sentiment, runs backtests, and stores results
+- `docs/backtest_plan.txt` (this file) and `configs/optimized_params.yaml` for reproducibility

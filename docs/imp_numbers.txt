@@ -1,0 +1,428 @@
+(.venv) pratham@DESKTOP-0J7C309:/mnt/d/2025/data-ingestion$  cd /mnt/d/2025/data-ingestion && python3 scripts/01_fetch_prices.py
+Fetching prices for 10 stocks from 2020-01-01 to 2026-01-31...
+============================================================
+  Downloading AAPL... ✓ 1528 rows
+  Downloading MSFT... ✓ 1528 rows
+  Downloading NVDA... ✓ 1528 rows
+  Downloading GOOGL... ✓ 1528 rows
+  Downloading AMZN... ✓ 1528 rows
+  Downloading META... ✓ 1528 rows
+  Downloading TSLA... ✓ 1528 rows
+  Downloading AVGO... ✓ 1528 rows
+  Downloading ORCL... ✓ 1528 rows
+  Downloading AMD... ✓ 1528 rows
+============================================================
+✓ Done! Price data saved to data/prices/
+(.venv) pratham@DESKTOP-0J7C309:/mnt/d/2025/data-ingestion$  cd /mnt/d/2025/data-ingestion && python3 scripts/04_correlation_analysis.py
+Loading price data...
+  AAPL: 1528 rows
+  MSFT: 1528 rows
+  NVDA: 1528 rows
+  GOOGL: 1528 rows
+  AMZN: 1528 rows
+  META: 1528 rows
+  TSLA: 1528 rows
+  AVGO: 1528 rows
+  ORCL: 1528 rows
+  AMD: 1528 rows
+
+Loading news data...
+  Total articles: 10000
+
+============================================================
+Aligning sentiment with price returns...
+============================================================
+  AAPL... 43 observations
+  MSFT... 45 observations
+  NVDA... 33 observations
+  GOOGL... 55 observations
+  AMZN... 39 observations
+  META... 57 observations
+  TSLA... 52 observations
+  AVGO... 214 observations
+  ORCL... 236 observations
+  AMD... 110 observations
+
+============================================================
+CORRELATION ANALYSIS: Sentiment vs Returns
+============================================================
+Ticker   1-Day      3-Day      5-Day      Obs     
+------------------------------------------------------------
+AAPL     -0.186      -0.424      -0.360      43      
+MSFT     -0.150      -0.150      -0.231      45      
+NVDA     +0.171      -0.089      -0.205      33      
+GOOGL    +0.120      +0.066      +0.146      55      
+AMZN     -0.365      -0.472      -0.375      39      
+META     -0.050      -0.216      -0.284      57      
+TSLA     -0.102      +0.094      +0.330      52      
+AVGO     +0.083      +0.070      +0.051      214     
+ORCL     +0.040      +0.063      +0.078      236     
+AMD      -0.008      -0.043      -0.029      110     
+------------------------------------------------------------
+OVERALL  +0.051      +0.047      +0.054      884     
+============================================================
+
+✓ Results saved to data/analysis/sentiment_returns.parquet
+✓ Summary saved to data/analysis/correlation_summary.json
+(.venv) pratham@DESKTOP-0J7C309:/mnt/d/2025/data-ingestion$ 
+
+(.venv) pratham@DESKTOP-0J7C309:/mnt/d/2025/data-ingestion$  cd /mnt/d/2025/data-ingestion && python3 -c "import pandas as pd; df = pd.read_parquet('data/news/news_with_sentiment.parquet'); print('Columns:', df.columns.tolist()); print('\nFirst row:'); print(df.head(1).to_dict('records')[0])"
+Columns: ['id', 'publisher', 'title', 'author', 'published_utc', 'article_url', 'tickers', 'image_url', 'description', 'keywords', 'ticker_queried', 'amp_url', 'insights', 'text', 'sentiment']
+
+First row:
+{'id': 'oGWmWTNo1aLaCbYC0630eBYAuqq4HVk3x8uqP4b5YA8', 'publisher': {'favicon_url': 'https://s3.massive.com/public/assets/news/favicons/themotleyfool.ico', 'homepage_url': 'https://www.fool.com/', 'logo_url': 'https://s3.massive.com/public/assets/news/logos/themotleyfool.svg', 'name': 'The Motley Fool'}, 'title': '10 Stock Market Predictions for 2024', 'author': 'newsfeedback@fool.com (Sean Williams)', 'published_utc': '2024-01-01T10:06:00Z', 'article_url': 'https://www.fool.com/investing/2024/01/01/10-stock-market-predictions-for-2024/', 'tickers': array(['NVDA', 'AAPL', 'MSFT', 'NLY', 'TSLA', 'AGNC'], dtype=object), 'image_url': 'https://g.foolcdn.com/editorial/images/759652/bear-market-stock-chart-quarter-report-financial-metrics-invest-getty.jpg', 'description': "Here's what to expect from the stock market, the U.S. economy, and some of the most widely held companies in the new year.", 'keywords': array(['investing'], dtype=object), 'ticker_queried': 'AAPL', 'amp_url': None, 'insights': None, 'text': "10 Stock Market Predictions for 2024 Here's what to expect from the stock market, the U.S. economy, and some of the most widely held companies in the new year.", 'sentiment': 0.0}
+(.venv) pratham@DESKTOP-0J7C309:/mnt/d/2025/data-ingestion$  cd /mnt/d/2025/data-ingestion && python3 scripts/05_lag_analysis.py
+Loading data...
+
+============================================================
+Analyzing AAPL
+============================================================
+  12h_1d     | Corr: -0.334 | p-val: 0.0352 | Obs:  40
+  12h_2d     | Corr: -0.435 | p-val: 0.0050 | Obs:  40
+  12h_3d     | Corr: -0.332 | p-val: 0.0361 | Obs:  40
+  12h_5d     | Corr: -0.221 | p-val: 0.1709 | Obs:  40
+  24h_1d     | Corr: -0.256 | p-val: 0.1024 | Obs:  42
+  24h_2d     | Corr: -0.234 | p-val: 0.1355 | Obs:  42
+  24h_3d     | Corr: -0.232 | p-val: 0.1385 | Obs:  42
+  24h_5d     | Corr: -0.204 | p-val: 0.1950 | Obs:  42
+  48h_1d     | Corr: -0.287 | p-val: 0.0592 | Obs:  44
+  48h_2d     | Corr: -0.251 | p-val: 0.1001 | Obs:  44
+  48h_3d     | Corr: -0.293 | p-val: 0.0535 | Obs:  44
+  48h_5d     | Corr: -0.207 | p-val: 0.1779 | Obs:  44
+  72h_1d     | Corr: -0.288 | p-val: 0.0549 | Obs:  45
+  72h_2d     | Corr: -0.232 | p-val: 0.1254 | Obs:  45
+  72h_3d     | Corr: -0.194 | p-val: 0.2007 | Obs:  45
+  72h_5d     | Corr: -0.124 | p-val: 0.4156 | Obs:  45
+
+============================================================
+Analyzing MSFT
+============================================================
+  12h_1d     | Corr: -0.170 | p-val: 0.2699 | Obs:  44
+  12h_2d     | Corr: -0.260 | p-val: 0.0888 | Obs:  44
+  12h_3d     | Corr: -0.219 | p-val: 0.1535 | Obs:  44
+  12h_5d     | Corr: -0.289 | p-val: 0.0573 | Obs:  44
+  24h_1d     | Corr: -0.291 | p-val: 0.0528 | Obs:  45
+  24h_2d     | Corr: -0.197 | p-val: 0.1947 | Obs:  45
+  24h_3d     | Corr: -0.121 | p-val: 0.4272 | Obs:  45
+  24h_5d     | Corr: -0.246 | p-val: 0.1037 | Obs:  45
+  48h_1d     | Corr: -0.213 | p-val: 0.1558 | Obs:  46
+  48h_2d     | Corr: -0.049 | p-val: 0.7448 | Obs:  46
+  48h_3d     | Corr: -0.098 | p-val: 0.5179 | Obs:  46
+  48h_5d     | Corr: -0.179 | p-val: 0.2345 | Obs:  46
+  72h_1d     | Corr: -0.148 | p-val: 0.3206 | Obs:  47
+  72h_2d     | Corr: -0.063 | p-val: 0.6739 | Obs:  47
+  72h_3d     | Corr: -0.060 | p-val: 0.6877 | Obs:  47
+  72h_5d     | Corr: -0.171 | p-val: 0.2492 | Obs:  47
+
+============================================================
+Analyzing NVDA
+============================================================
+  12h_1d     | Corr: -0.060 | p-val: 0.7427 | Obs:  32
+  12h_2d     | Corr: -0.112 | p-val: 0.5403 | Obs:  32
+  12h_3d     | Corr: -0.332 | p-val: 0.0635 | Obs:  32
+  12h_5d     | Corr: -0.391 | p-val: 0.0268 | Obs:  32
+  24h_1d     | Corr: -0.040 | p-val: 0.8253 | Obs:  33
+  24h_2d     | Corr: -0.050 | p-val: 0.7839 | Obs:  33
+  24h_3d     | Corr: -0.329 | p-val: 0.0618 | Obs:  33
+  24h_5d     | Corr: -0.318 | p-val: 0.0710 | Obs:  33
+  48h_1d     | Corr: +0.019 | p-val: 0.9178 | Obs:  33
+  48h_2d     | Corr: -0.014 | p-val: 0.9367 | Obs:  33
+  48h_3d     | Corr: -0.198 | p-val: 0.2697 | Obs:  33
+  48h_5d     | Corr: -0.501 | p-val: 0.0030 | Obs:  33
+  72h_1d     | Corr: -0.068 | p-val: 0.7086 | Obs:  33
+  72h_2d     | Corr: -0.054 | p-val: 0.7638 | Obs:  33
+  72h_3d     | Corr: -0.286 | p-val: 0.1068 | Obs:  33
+  72h_5d     | Corr: -0.529 | p-val: 0.0016 | Obs:  33
+
+============================================================
+Analyzing GOOGL
+============================================================
+  12h_1d     | Corr: -0.037 | p-val: 0.7941 | Obs:  51
+  12h_2d     | Corr: -0.076 | p-val: 0.5959 | Obs:  51
+  12h_3d     | Corr: -0.090 | p-val: 0.5293 | Obs:  51
+  12h_5d     | Corr: -0.086 | p-val: 0.5474 | Obs:  51
+  24h_1d     | Corr: +0.016 | p-val: 0.9087 | Obs:  54
+  24h_2d     | Corr: -0.073 | p-val: 0.5989 | Obs:  54
+  24h_3d     | Corr: -0.011 | p-val: 0.9399 | Obs:  54
+  24h_5d     | Corr: -0.052 | p-val: 0.7091 | Obs:  54
+  48h_1d     | Corr: +0.017 | p-val: 0.9016 | Obs:  56
+  48h_2d     | Corr: +0.207 | p-val: 0.1257 | Obs:  56
+  48h_3d     | Corr: +0.223 | p-val: 0.0978 | Obs:  56
+  48h_5d     | Corr: +0.157 | p-val: 0.2493 | Obs:  56
+  72h_1d     | Corr: +0.119 | p-val: 0.3796 | Obs:  57
+  72h_2d     | Corr: +0.228 | p-val: 0.0875 | Obs:  57
+  72h_3d     | Corr: +0.268 | p-val: 0.0440 | Obs:  57
+  72h_5d     | Corr: +0.214 | p-val: 0.1098 | Obs:  57
+
+============================================================
+Analyzing AMZN
+============================================================
+  12h_1d     | Corr: -0.161 | p-val: 0.3279 | Obs:  39
+  12h_2d     | Corr: -0.370 | p-val: 0.0205 | Obs:  39
+  12h_3d     | Corr: -0.355 | p-val: 0.0264 | Obs:  39
+  12h_5d     | Corr: -0.383 | p-val: 0.0161 | Obs:  39
+  24h_1d     | Corr: -0.135 | p-val: 0.4116 | Obs:  39
+  24h_2d     | Corr: -0.224 | p-val: 0.1703 | Obs:  39
+  24h_3d     | Corr: -0.193 | p-val: 0.2379 | Obs:  39
+  24h_5d     | Corr: -0.228 | p-val: 0.1625 | Obs:  39
+  48h_1d     | Corr: -0.250 | p-val: 0.1205 | Obs:  40
+  48h_2d     | Corr: -0.103 | p-val: 0.5273 | Obs:  40
+  48h_3d     | Corr: -0.098 | p-val: 0.5493 | Obs:  40
+  48h_5d     | Corr: -0.291 | p-val: 0.0686 | Obs:  40
+  72h_1d     | Corr: -0.128 | p-val: 0.4259 | Obs:  41
+  72h_2d     | Corr: -0.028 | p-val: 0.8600 | Obs:  41
+  72h_3d     | Corr: -0.046 | p-val: 0.7773 | Obs:  41
+  72h_5d     | Corr: -0.267 | p-val: 0.0911 | Obs:  41
+
+============================================================
+Analyzing META
+============================================================
+  12h_1d     | Corr: +0.111 | p-val: 0.4331 | Obs:  52
+  12h_2d     | Corr: -0.047 | p-val: 0.7383 | Obs:  52
+  12h_3d     | Corr: -0.077 | p-val: 0.5889 | Obs:  52
+  12h_5d     | Corr: -0.108 | p-val: 0.4468 | Obs:  52
+  24h_1d     | Corr: +0.160 | p-val: 0.2438 | Obs:  55
+  24h_2d     | Corr: -0.032 | p-val: 0.8151 | Obs:  55
+  24h_3d     | Corr: -0.073 | p-val: 0.5941 | Obs:  55
+  24h_5d     | Corr: -0.133 | p-val: 0.3336 | Obs:  55
+  48h_1d     | Corr: -0.003 | p-val: 0.9799 | Obs:  57
+  48h_2d     | Corr: -0.055 | p-val: 0.6821 | Obs:  57
+  48h_3d     | Corr: -0.115 | p-val: 0.3962 | Obs:  57
+  48h_5d     | Corr: -0.265 | p-val: 0.0460 | Obs:  57
+  72h_1d     | Corr: -0.008 | p-val: 0.9544 | Obs:  58
+  72h_2d     | Corr: -0.109 | p-val: 0.4167 | Obs:  58
+  72h_3d     | Corr: -0.210 | p-val: 0.1127 | Obs:  58
+  72h_5d     | Corr: -0.290 | p-val: 0.0275 | Obs:  58
+
+============================================================
+Analyzing TSLA
+============================================================
+  6h_1d      | Corr: -0.293 | p-val: 0.1101 | Obs:  31
+  6h_2d      | Corr: -0.164 | p-val: 0.3769 | Obs:  31
+  6h_3d      | Corr: -0.219 | p-val: 0.2366 | Obs:  31
+  6h_5d      | Corr: -0.015 | p-val: 0.9363 | Obs:  31
+  12h_1d     | Corr: -0.197 | p-val: 0.1903 | Obs:  46
+  12h_2d     | Corr: -0.048 | p-val: 0.7537 | Obs:  46
+  12h_3d     | Corr: -0.060 | p-val: 0.6929 | Obs:  46
+  12h_5d     | Corr: +0.111 | p-val: 0.4626 | Obs:  46
+  24h_1d     | Corr: -0.020 | p-val: 0.8889 | Obs:  49
+  24h_2d     | Corr: +0.091 | p-val: 0.5344 | Obs:  49
+  24h_3d     | Corr: +0.120 | p-val: 0.4113 | Obs:  49
+  24h_5d     | Corr: +0.341 | p-val: 0.0165 | Obs:  49
+  48h_1d     | Corr: +0.035 | p-val: 0.8057 | Obs:  52
+  48h_2d     | Corr: +0.113 | p-val: 0.4253 | Obs:  52
+  48h_3d     | Corr: +0.172 | p-val: 0.2222 | Obs:  52
+  48h_5d     | Corr: +0.377 | p-val: 0.0059 | Obs:  52
+  72h_1d     | Corr: +0.014 | p-val: 0.9192 | Obs:  53
+  72h_2d     | Corr: +0.174 | p-val: 0.2116 | Obs:  53
+  72h_3d     | Corr: +0.211 | p-val: 0.1291 | Obs:  53
+  72h_5d     | Corr: +0.286 | p-val: 0.0379 | Obs:  53
+
+============================================================
+Analyzing AVGO
+============================================================
+  12h_1d     | Corr: +0.032 | p-val: 0.8129 | Obs:  57
+  12h_2d     | Corr: +0.006 | p-val: 0.9648 | Obs:  57
+  12h_3d     | Corr: +0.008 | p-val: 0.9543 | Obs:  57
+  12h_5d     | Corr: +0.113 | p-val: 0.4018 | Obs:  57
+  24h_1d     | Corr: +0.127 | p-val: 0.1751 | Obs: 116
+  24h_2d     | Corr: +0.085 | p-val: 0.3622 | Obs: 116
+  24h_3d     | Corr: +0.067 | p-val: 0.4774 | Obs: 116
+  24h_5d     | Corr: +0.040 | p-val: 0.6694 | Obs: 116
+  48h_1d     | Corr: +0.074 | p-val: 0.2854 | Obs: 212
+  48h_2d     | Corr: +0.032 | p-val: 0.6427 | Obs: 212
+  48h_3d     | Corr: +0.008 | p-val: 0.9043 | Obs: 212
+  48h_5d     | Corr: +0.005 | p-val: 0.9451 | Obs: 212
+  72h_1d     | Corr: +0.038 | p-val: 0.5531 | Obs: 245
+  72h_2d     | Corr: +0.026 | p-val: 0.6846 | Obs: 245
+  72h_3d     | Corr: +0.006 | p-val: 0.9279 | Obs: 245
+  72h_5d     | Corr: +0.043 | p-val: 0.5068 | Obs: 245
+
+============================================================
+Analyzing ORCL
+============================================================
+  12h_1d     | Corr: +0.005 | p-val: 0.9679 | Obs:  58
+  12h_2d     | Corr: +0.003 | p-val: 0.9810 | Obs:  58
+  12h_3d     | Corr: +0.061 | p-val: 0.6477 | Obs:  58
+  12h_5d     | Corr: -0.006 | p-val: 0.9657 | Obs:  58
+  24h_1d     | Corr: +0.020 | p-val: 0.8458 | Obs:  99
+  24h_2d     | Corr: +0.032 | p-val: 0.7542 | Obs:  99
+  24h_3d     | Corr: +0.015 | p-val: 0.8808 | Obs:  99
+  24h_5d     | Corr: +0.076 | p-val: 0.4574 | Obs:  99
+  48h_1d     | Corr: +0.011 | p-val: 0.8750 | Obs: 206
+  48h_2d     | Corr: +0.018 | p-val: 0.7985 | Obs: 206
+  48h_3d     | Corr: +0.015 | p-val: 0.8290 | Obs: 206
+  48h_5d     | Corr: -0.015 | p-val: 0.8292 | Obs: 206
+  72h_1d     | Corr: +0.068 | p-val: 0.2508 | Obs: 285
+  72h_2d     | Corr: +0.077 | p-val: 0.1933 | Obs: 285
+  72h_3d     | Corr: +0.067 | p-val: 0.2572 | Obs: 285
+  72h_5d     | Corr: +0.049 | p-val: 0.4086 | Obs: 285
+
+============================================================
+Analyzing AMD
+============================================================
+  12h_1d     | Corr: -0.036 | p-val: 0.7626 | Obs:  71
+  12h_2d     | Corr: -0.108 | p-val: 0.3718 | Obs:  71
+  12h_3d     | Corr: -0.091 | p-val: 0.4512 | Obs:  71
+  12h_5d     | Corr: -0.141 | p-val: 0.2397 | Obs:  71
+  24h_1d     | Corr: +0.084 | p-val: 0.4138 | Obs:  97
+  24h_2d     | Corr: +0.071 | p-val: 0.4871 | Obs:  97
+  24h_3d     | Corr: +0.060 | p-val: 0.5612 | Obs:  97
+  24h_5d     | Corr: -0.027 | p-val: 0.7899 | Obs:  97
+  48h_1d     | Corr: +0.083 | p-val: 0.3930 | Obs: 108
+  48h_2d     | Corr: +0.094 | p-val: 0.3331 | Obs: 108
+  48h_3d     | Corr: +0.066 | p-val: 0.4960 | Obs: 108
+  48h_5d     | Corr: -0.049 | p-val: 0.6144 | Obs: 108
+  72h_1d     | Corr: +0.087 | p-val: 0.3661 | Obs: 110
+  72h_2d     | Corr: +0.057 | p-val: 0.5511 | Obs: 110
+  72h_3d     | Corr: +0.061 | p-val: 0.5247 | Obs: 110
+  72h_5d     | Corr: -0.042 | p-val: 0.6656 | Obs: 110
+
+
+Results saved to /mnt/d/2025/data-ingestion/data/analysis/lag_analysis.json
+
+============================================================
+SUMMARY: Best Configuration per Stock
+============================================================
+AAPL   | 12h lookback, 2d lead | Corr: -0.435 | Obs:  40
+MSFT   | 24h lookback, 1d lead | Corr: -0.291 | Obs:  45
+NVDA   | 72h lookback, 5d lead | Corr: -0.529 | Obs:  33
+GOOGL  | 72h lookback, 3d lead | Corr: +0.268 | Obs:  57
+AMZN   | 12h lookback, 5d lead | Corr: -0.383 | Obs:  39
+META   | 72h lookback, 5d lead | Corr: -0.290 | Obs:  58
+TSLA   | 48h lookback, 5d lead | Corr: +0.377 | Obs:  52
+AVGO   | 24h lookback, 1d lead | Corr: +0.127 | Obs: 116
+ORCL   | 72h lookback, 2d lead | Corr: +0.077 | Obs: 285
+AMD    | 12h lookback, 5d lead | Corr: -0.141 | Obs:  71
+(.venv) pratham@DESKTOP-0J7C309:/mnt/d/2025/data-ingestion$ 
+
+(.venv) pratham@DESKTOP-0J7C309:/mnt/d/2025/data-ingestion$  cd /mnt/d/2025/data-ingestion && source .venv/bin/activate && python3 scripts/06_strategy_signals.py
+Loading lag analysis results...
+
+Loading price and news data...
+
+Generating trading signals...
+Generating signals for AAPL...
+Generating signals for MSFT...
+Generating signals for NVDA...
+Generating signals for GOOGL...
+Generating signals for AMZN...
+Generating signals for META...
+Generating signals for TSLA...
+Generating signals for AVGO...
+  Weak correlation (0.127 < 0.25), skipping AVGO
+Generating signals for ORCL...
+  Weak correlation (0.077 < 0.25), skipping ORCL
+Generating signals for AMD...
+  Weak correlation (0.141 < 0.25), skipping AMD
+
+Signals saved to /mnt/d/2025/data-ingestion/data/signals/trading_signals.parquet
+
+============================================================
+SIGNAL SUMMARY
+============================================================
+Total signals generated: 324
+Stocks included: 7
+Stocks filtered (weak correlation): 3
+
+Signal distribution:
+signal
+SELL    202
+BUY      95
+HOLD     27
+Name: count, dtype: int64
+
+Signal type distribution:
+signal_type
+inverse    215
+direct     109
+Name: count, dtype: int64
+
+Signals by ticker:
+  AAPL  :   40 signals (0.0% BUY)
+  MSFT  :   45 signals (0.0% BUY)
+  NVDA  :   33 signals (0.0% BUY)
+  GOOGL :   57 signals (100.0% BUY)
+  AMZN  :   39 signals (0.0% BUY)
+  META  :   58 signals (0.0% BUY)
+  TSLA  :   52 signals (73.1% BUY)
+
+Average sentiment: 0.402
+Average news count: 28.3
+(.venv) pratham@DESKTOP-0J7C309:/mnt/d/2025/data-ingestion$ 
+
+(.venv) pratham@DESKTOP-0J7C309:/mnt/d/2025/data-ingestion$  cd /mnt/d/2025/data-ingestion && source .venv/bin/activate && python3 scripts/07_backtest.py
+Loading data...
+Signals loaded: 324
+Price data loaded for 10 stocks
+
+Running backtest from 2024-01-01 to 2026-01-31
+Total trading days: 522
+Initial capital: $100,000.00
+
+Processed 50/522 days | Equity: $97,510.98 | Trades: 21
+Processed 100/522 days | Equity: $98,537.03 | Trades: 24
+Processed 150/522 days | Equity: $98,537.03 | Trades: 24
+Processed 200/522 days | Equity: $98,537.03 | Trades: 24
+Processed 250/522 days | Equity: $98,537.03 | Trades: 24
+Processed 300/522 days | Equity: $98,537.03 | Trades: 24
+Processed 350/522 days | Equity: $98,537.03 | Trades: 24
+Processed 400/522 days | Equity: $98,537.03 | Trades: 24
+Processed 450/522 days | Equity: $98,537.03 | Trades: 24
+Processed 500/522 days | Equity: $98,537.03 | Trades: 24
+
+Calculating metrics...
+
+Results saved to /mnt/d/2025/data-ingestion/trades/
+  - backtest_summary_20260206_201756.json
+  - trade_log_20260206_201756.csv
+  - daily_equity_20260206_201756.csv
+
+======================================================================
+BACKTEST RESULTS
+======================================================================
+
+PERIOD
+  Start Date: 2024-01-02
+  End Date: 2026-01-30
+  Trading Days: 522
+
+P&L SUMMARY
+  Initial Capital: $100,000.00
+  Final Equity: $98,537.03
+  Total Return: -1.46%
+  Annual Return: -0.68%
+
+TRADE STATISTICS
+  Total Trades: 24
+  Wins: 12 | Losses: 12
+  Win Rate: 50.0%
+  Avg Days Held: 4.6
+
+WIN/LOSS ANALYSIS
+  Avg Win: $313.61 (+3.59%)
+  Avg Loss: $-435.52 (-4.61%)
+  Largest Win: $593.99 (+6.30%)
+  Largest Loss: $-669.46 (-7.25%)
+  Profit Factor: 0.72
+  Expectancy: $-60.96
+
+STREAKS
+  Max Win Streak: 3 trades
+  Max Loss Streak: 3 trades
+
+DRAWDOWN ANALYSIS
+  Max Drawdown: -2.68%
+  DD Start: 2024-01-02
+  DD End: 2024-03-06
+  DD Duration: 64 days
+
+RISK METRICS
+  Daily Volatility: 0.10%
+  Annual Volatility: 1.64%
+  Sharpe Ratio: -0.42
+  Sortino Ratio: -0.19
+  Calmar Ratio: -0.26
+
+======================================================================
+(.venv) pratham@DESKTOP-0J7C309:/mnt/d/2025/data-ingestion$ 

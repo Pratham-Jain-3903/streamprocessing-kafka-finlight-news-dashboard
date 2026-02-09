@@ -1,0 +1,13 @@
+Finlight API probing results (summary)
+
+- Script: `scripts/finlight_find_first_article.py` (exponential forward + binary search probe)
+- Initial probe: POST for 2023-01-01 returned empty `articles: []`.
+- Script run (2020-01-01 → 2026-01-01): no articles found in the full range using simple from/to payloads.
+- Sources endpoint (`GET /v2/sources`) succeeded and returned many domains (finance.yahoo.com, reuters.com, bloomberg.com, etc.).
+- Attempts with `query` fields returned an API message indicating `query` complexity errors for some inputs. Some queries are rejected by the API.
+- Attempts with `sources:["finance.yahoo.com"]` for several dates returned empty results.
+
+Interpretation & next steps:
+- API key and sources endpoint are valid, but article retrieval appears constrained by either account permissions or required query/source combinations.
+- Next recommended action: have the script try a small curated list of safe queries ("earnings","ipo","acquisition") paired with high-volume sources ("reuters.com","finance.yahoo.com","bloomberg.com") and run the probe again. The script now includes `probe_with_combinations()` to support this.
+- If probing still returns no historical data, contact Finlight support or switch to alternate news datasets for backfill (NewsAPI, GDELT, CommonCrawl).

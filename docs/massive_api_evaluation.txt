@@ -1,0 +1,118 @@
+================================================================================
+Massive API (Polygon.io) Evaluation Summary
+================================================================================
+Date: 2026-02-03
+API Endpoint: https://api.massive.com/v2/reference/news
+Documentation: https://massive.com/docs/rest/stocks/news
+
+================================================================================
+1. API CAPABILITIES
+================================================================================
+
+✓ Ticker-based filtering (e.g., ticker=AMX, AAPL)
+✓ Date range filtering (published_utc.gte / published_utc.lte)
+✓ Sorting and pagination (order, limit, sort)
+✓ RESTful GET endpoint with query parameters
+✓ JSON responses with structured article data
+
+Response format:
+{
+  "status": "OK",
+  "count": N,
+  "results": [
+    {
+      "id": "...",
+      "publisher": {...},
+      "title": "...",
+      "author": "...",
+      "published_utc": "2024-01-15T10:30:00Z",
+      "article_url": "...",
+      "tickers": ["AAPL"],
+      "description": "...",
+      "keywords": [...]
+    }
+  ]
+}
+
+================================================================================
+2. RATE LIMITS (FREE TIER)
+================================================================================
+
+⚠️ MAJOR LIMITATION: Very strict rate limits on free tier
+  - Hit 429 "Too Many Requests" after ~5 API calls
+  - Error message: "You've exceeded the maximum requests per minute"
+  - Recommended: Upgrade to paid subscription for production use
+
+Free tier limits (observed):
+  - ~5 requests per minute
+  - No advance indication of limit in docs
+  - Retry-After header provided in 429 responses (typically 60s)
+
+Paid tier pricing: https://polygon.io/pricing
+  - Starter: $49/mo (100 requests/min)
+  - Developer: $99/mo (500 requests/min)
+  - Advanced: $199+/mo (unlimited)
+
+================================================================================
+3. IMPLEMENTATION STATUS
+================================================================================
+
+✓ Created: ingestion/massive_api.py
+  - fetch_news() — fetch articles with filters
+  - probe_articles() — check if articles exist for ticker+date
+  - normalize_article() — map to internal schema
+
+✓ Created: scripts/probe_news_api.py
+  - Multi-provider probe script (supports Finlight + Massive)
+  - Exponential forward + binary search to find earliest article
+  - Rate-limit handling (429 retry with backoff)
+
+✓ Tested: ticker=AMX, date range 2020-01-01 → 2026-01-01
+  - First 5 probes succeeded
+  - Hit rate limit on 6th request
+  - Script handles 429 gracefully and retries after delay
+
+================================================================================
+4. COMPARISON: FINLIGHT vs MASSIVE
+================================================================================
+
+                        | Finlight                | Massive (Polygon.io)
+------------------------+-------------------------+-------------------------
+Endpoint                | POST /v2/articles       | GET /v2/reference/news
+Query method            | JSON body               | URL query params
+Ticker filtering        | query:"ticker:AAPL"     | ticker=AAPL (param)
+Source filtering        | sources:["*"]           | publisher (filter)
+Free tier rate limit    | High (no 429 observed)  | Very low (~5 req/min)
+Historical coverage     | Unknown (needs probing) | Good (2020+)
+Response structure      | {articles:[...]}        | {results:[...], count:N}
+Best for                | High-volume probing     | Low-volume or paid tier
+
+================================================================================
+5. RECOMMENDATIONS
+================================================================================
+
+For Development / Prototyping:
+  → Use Finlight API (higher/no rate limits observed on free tier)
+  → If Massive is required, add 12-15s delay between requests to avoid 429
+
+For Production (Backtesting 2024-2026):
+  → Option 1: Finlight API (if historical coverage is sufficient)
+  → Option 2: Massive Starter tier ($49/mo, 100 req/min) for ticker-filtered news
+  → Option 3: GDELT or Common Crawl (free, high volume, needs heavy processing)
+
+For Historical Backfill (2020-2024):
+  → Massive API requires paid tier for practical bulk retrieval
+  → Alternative: batch download archives if available
+  → Alternative: use GDELT Event Database (free, global coverage since 1979)
+
+================================================================================
+6. NEXT STEPS
+================================================================================
+
+[ ] Probe Finlight API for AMX/AXP/NVDA historical coverage (2020-2026)
+[ ] Compare article counts and quality between providers
+[ ] If Finlight coverage is good → use Finlight for backtest
+[ ] If Finlight lacks coverage → upgrade Massive to Starter tier or use GDELT
+[ ] Document final provider choice in docs/techstack.txt
+
+================================================================================

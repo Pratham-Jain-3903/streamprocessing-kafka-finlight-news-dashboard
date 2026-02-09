@@ -1,0 +1,47 @@
+Language and Runtime:
+- Python 3.13.x (primary language)
+
+Web / Dashboard:
+- FastAPI + Uvicorn: async, high-performance, excellent developer DX, built-in OpenAPI docs.
+
+Kafka / Messaging:
+- Development: kafka-python (existing) or aiokafka for asyncio-based consumers.
+- Production recommendation: confluent-kafka-python (librdkafka) for performance and reliability.
+- Schema: Avro or Protobuf with Confluent Schema Registry (strongly recommended).
+
+Stream Processing / Consumers:
+- Lightweight transforms: asyncio + aiokafka consumer groups.
+- Production-scale: Apache Flink / Spark or Kafka Streams (Java) / ksqlDB.
+
+Model Serving:
+- FastAPI microservice for low-throughput inference.
+- For scale: TensorFlow Serving, TorchServe, or a dedicated model server behind REST/gRPC.
+
+Data Storage & Warehousing:
+- Postgres for transactional storage.
+- DuckDB for local analytics and ad-hoc queries.
+- Use Kafka Connect (or custom sinks) to load into S3/Snowflake/Postgres with idempotent upserts.
+
+Orchestration & Batch:
+- Airflow or Prefect for scheduled ETL and retraining jobs.
+
+Observability:
+- Prometheus for metrics, Grafana for dashboards.
+- Structured logging (JSON) and tracing (optional OpenTelemetry).
+
+Testing & CI:
+- pytest for unit/integration tests.
+- pre-commit, flake8/isort, black for formatting/linting.
+
+Dev & Infra:
+- Docker Compose for local stack: Zookeeper, Kafka, Schema Registry (optional), Postgres, DuckDB, mercury.
+- Use bind mounts for `./logs`, `./ml-models`, `./config` to speed dev iteration.
+
+Why these choices (short):
+- FastAPI is async, fast to develop, and integrates well with Uvicorn and background tasks for small to medium dashboards.
+- confluent-kafka-python (librdkafka) is the standard for production-grade Kafka clients in Python.
+- Schema Registry enforces contracts and reduces downstream breakage as schemas evolve.
+
+Next-step suggestion:
+- For your repo: keep FastAPI + aiokafka/confluent-kafka (start with kafka-python for prototypes, move to confluent-kafka for production).
+- Add Schema Registry and Kafka Connect to your local `docker-compose` when moving from prototype to integration testing.

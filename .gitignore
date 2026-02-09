@@ -16,7 +16,7 @@ __pycache__/
 # Runtime outputs (generated data, logs, state)
 data/
 logs/
-trades/
+# trades/
 states/
 volumes/
 
@@ -26,3 +26,8 @@ misc/
 
 # IDE
 .idea/
+
+.github/
+.vscode/
+ml-models/
+reports/

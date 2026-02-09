@@ -1,0 +1,19 @@
+Decision summary: Architecture choice for news+stock ingestion and backtesting
+
+- Decision: Use Kafka + Python consumers for ingestion and enrichment; avoid Spark for current scale.
+
+- Rationale:
+  - Current data volumes (Finlight news + daily OHLCV for 10 stocks) are small (<100k events/day). Spark's operational overhead (cluster, JVM tuning, shuffle) outweighs benefits.
+  - Sentiment inference (transformer models) runs far more efficiently in a dedicated Python service than as Spark UDFs.
+  - Kafka provides decoupling, replay and durability; keep it as the message bus.
+  - Storage: use DuckDB/Parquet for now; migrate to Iceberg when partitioning/time-travel needs arise.
+
+- Recommended components:
+  - Producer: existing Python `ingestion/producer.py` (keep or extend)
+  - Consumer/enrichment: Python service using `confluent-kafka-python` or `aiokafka` for production (prototype with `kafka-python`)
+  - Sentiment inference: Python microservice or batch worker (load model once, process in batches)
+  - Backtesting: prototype with `backtesting.py`, scale to `vectorbt` for multi-asset sweeps
+  - Orchestration: Airflow / Prefect for scheduled pulls and retraining
+
+-- Notes
+  - Add monitoring for consumer lag, model latency, and API rate-limits.

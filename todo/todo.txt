@@ -1,0 +1,23 @@
+app
+
+- Fix topic name mismatches: Align topic names across code (consumer.py, ingestion/producer.py, ingestion/stocks_api.py) to news_raw/news_enriched/news_sentiment and stocks_raw/stocks_features.
+- Add schema registry support: Define Avro/Protobuf schemas, set compatibility rules, register with a schema registry, add client-side validation.
+- Implement message envelope: Standardize envelope fields (id, source, event_type, timestamp, ingest_ts, key, payload, schema_version) and update producers/consumers.
+- Implement DLQ and retries: Dead-letter topics, exponential-backoff retry logic, poison-message detection, DLQ reprocessing utility.
+- Make producers idempotent: Enable idempotent producers and make sinks idempotent/upsert-safe using unique event IDs.
+- Design partitioning strategy: Choose partition keys per topic (source, symbol, tenantId), and decide partitions/retention/compaction policies.
+- Local dev Kafka stack: Add docker-compose entries for Kafka, Zookeeper, Schema Registry, Kafka Connect, and sample topic setup.
+- Add logging and metrics: Instrument producer.py, consumer.py, and services with structured logs, Prometheus metrics, and traces; create Grafana dashboards.
+- Secure secrets and remove creds: Remove misc/git_cred.txt, rotate secrets, use env vars or secret manager, document local config.
+- Rate-limiting and backpressure: Add API rate-limiting in ingestion/stocks_api.py and news fetchers; implement batching and backpressure handling.
+- Add tests and CI: Unit/integration tests for producer/consumer, schema validation, DLQ flows; CI runs tests and linters.
+- Warehouse sink and mapping: Design warehouse schema and implement Kafka Connect or custom sink with upsert semantics.
+- Model inference pipeline: Implement feature extractor and model scorer services; define stocks_features and signals topics and model versioning.
+- Dashboard integration: Expose aggregated metrics and model outputs in app/main.py; define KPIs and example views.
+- Trading strategy integration: Design gating, validation, backtesting harness, safety checks, and manual approval workflow before live execution.
+- Beginner Kafka docs: Short primer mapping Kafka concepts to this repo with example local commands.
+- Add Dockerfile for `mercury` service: Dev-friendly Dockerfile (Python 3.13.3), .dockerignore, entrypoint app/main.py, keep ./logs ./ml-models ./config as mounts.
+
+sentiment analysis
+
+- try ensemble models for sentiment analysis

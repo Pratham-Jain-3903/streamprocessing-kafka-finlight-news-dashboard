@@ -1,0 +1,16 @@
+kafka-python
+requests
+python-dotenv
+# zoneinfo
+pandas
+logger
+fastapi
+uvicorn[standard]
+yfinance
+vaderSentiment
+pyarrow
+scipy
+numpy
+kaleido
+plotly
+dash

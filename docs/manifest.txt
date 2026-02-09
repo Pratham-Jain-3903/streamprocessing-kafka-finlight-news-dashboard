@@ -1,0 +1,112 @@
+Project: News Sentiment Trading Strategy & Backtesting Platform
+
+Description:
+A quantitative trading system that analyzes news sentiment to generate trading signals for technology stocks. 
+The platform ingests historical news, performs VADER sentiment analysis, identifies optimal lag parameters through 
+statistical analysis, generates trading signals, and backtests strategies with comprehensive risk metrics. Features 
+an interactive Plotly Dash dashboard with 9 tabs for parameter tuning and visualization.
+
+Data Flow:
+1. News Ingestion → 2. Sentiment Analysis → 3. Statistical Analysis → 4. Signal Generation → 5. Backtesting → 6. Visualization
+
+Core Components:
+
+Data Collection & Ingestion:
+- scripts/01_data_collection.py — Fetches historical OHLCV price data from Polygon.io API for 10 tech stocks
+- scripts/02_fetch_news.py — Batch news fetching with yearly splits, merge logic, deduplication by article URL/ID
+  * Handles large date ranges (2024-2026) with 3 yearly batches
+  * Merges with existing all_news.parquet to prevent duplicates
+  * Rate limited: 5 req/min (13s sleep between Polygon.io calls)
+  * Output: data/news/all_news.parquet (10,000+ articles)
+
+Sentiment & Statistical Analysis:
+- scripts/03_sentiment_analysis.py — VADER sentiment scoring (compound, pos, neg, neu)
+  * Aggregates sentiment per ticker per day (requires MIN_NEWS_COUNT articles)
+  * Output: data/news/news_with_sentiment.parquet
+- scripts/04_lag_analysis.py — Tests 200 configurations per stock to find optimal lookback/lead times
+  * Computes correlations between lagged sentiment and forward returns
+  * Output: data/analysis/lag_analysis.json (optimal configs: NVDA -0.529, AAPL -0.435, TSLA +0.377)
+- scripts/05_correlation_summary.py — Multi-horizon correlation analysis (1d/3d/5d)
+  * Output: data/analysis/correlation_summary.json (884 observations)
+
+Signal Generation & Backtesting:
+- scripts/06_strategy_signals.py — Generates BUY/SELL/HOLD signals using optimal lag configs
+  * Imports parameters from config.stock_universe: SENTIMENT_THRESHOLD, MIN_NEWS_COUNT, HOLD_PERIOD_HOURS, STOP_LOSS_PCT, TAKE_PROFIT_PCT
+  * Applies correlation filters (MIN_CORRELATION_THRESHOLD=0.25, hardcoded)
+  * Output: data/trades/trading_signals.parquet (324 signals: 95 BUY, 202 SELL, 27 HOLD)
+- scripts/07_backtest.py — Realistic backtesting with transaction costs ($1/trade)
+  * Implements stop-loss, take-profit, hold period exits
+  * Calculates 34 comprehensive metrics (Sharpe, Sortino, Calmar, max drawdown, win rate, expectancy)
+  * Output: trades/backtest_results.json, trades/trade_log.csv, trades/*.html
+
+Configuration & Parameters:
+- config/stock_universe.py — Central configuration file with 6 strategy parameters:
+  * SENTIMENT_THRESHOLD = 0.2 (range: 0.0-0.5) — Min avg sentiment to trigger signal
+  * MIN_NEWS_COUNT = 3 (range: 1-10) — Min articles required per day
+  * HOLD_PERIOD_HOURS = 240 (range: 24-240) — Max position duration (10 days)
+  * STOP_LOSS_PCT = 0.02 (range: 0.01-0.10) — Exit if loss exceeds 2%
+  * TAKE_PROFIT_PCT = 0.05 (range: 0.02-0.20) — Exit if profit exceeds 5%
+  * LOOKBACK_HOURS = 24 — Pre-optimized per stock via lag analysis (not user-configurable)
+  * STOCK_UNIVERSE = [AAPL, MSFT, GOOGL, AMZN, TSLA, NVDA, META, NFLX, AVGO, ORCL]
+
+Dashboard & Visualization:
+- app/experiment.py — Interactive Plotly Dash dashboard with 9 tabs
+  * Dynamic Tabs (6): Performance Metrics, Equity Curve, Heatmap, Drawdown, Trade Distribution, Trade Log
+  * Static Tabs (3): Lag Analysis, Correlation, Data Summary
+  * Real-time parameter tuning via sliders
+  * "Run Backtest" button executes scripts 06 & 07 with selected parameters
+  * Visual indicators: ✅ Active Parameters (affect results), ⚠️ Pre-optimized (disabled)
+  * Status display shows exact parameters used in each backtest run
+- app/main.py — FastAPI service (legacy Kafka topic inspector, not used in main pipeline)
+
+Legacy Components (Streaming Mode — Not Active):
+- ingestion/producer.py — Kafka producer for real-time streaming (optional)
+- ingestion/finlight_api.py — Finlight API wrapper (alternative to Polygon.io)
+- ingestion/stocks_api.py — Stock price fetcher for streaming mode
+- consumer/consumer.py — Simple Kafka consumer example
+- docker-compose.yml — Local stack: Zookeeper, Kafka, Postgres, DuckDB (for streaming development)
+
+Data Storage Structure:
+- data/news/ — News articles (all_news.parquet: 10K articles, news_with_sentiment.parquet with VADER scores)
+- data/prices/ — OHLCV data per ticker ({TICKER}_1d_prices.parquet, 1528 bars daily)
+- data/analysis/ — Statistical analysis results (lag_analysis.json, correlation_summary.json)
+- data/trades/ — Trading signals and backtest results (trading_signals.parquet, backtest_results.json, trade_log.csv)
+- trades/ — HTML visualizations exported from dashboard
+
+Key Findings:
+- News Coverage: 10,000 articles from 2024-01-01 to 2026-01-31
+- Optimal Lags: NVDA (72h lookback, -0.529 inverse), AAPL (48h, -0.435 inverse), TSLA (72h, +0.377 direct)
+- Backtest Results (Default Params): 64 trades, 46.9% win rate, -1.14% return, -7.72% max drawdown, Sharpe -0.08
+
+Pipeline Execution Order:
+- Full Pipeline (First Run): 01 → 02 → 03 → 04 → 05 → 06 → 07
+- Parameter Tuning (Dashboard): Dashboard "Run Backtest" → 06 → 07 → Auto-refresh visualizations
+- Adding New Data: 02 → 03 → Dashboard "Run Backtest"
+
+Dev Commands:
+- Setup: `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`
+- Full Pipeline: `python scripts/01_data_collection.py && python scripts/02_fetch_news.py && python scripts/03_sentiment_analysis.py && python scripts/04_lag_analysis.py && python scripts/05_correlation_summary.py`
+- Launch Dashboard: `python app/experiment.py` (then open http://localhost:8050)
+- View Results: Open dashboard → Adjust parameters → Click "Run Backtest" → Explore 9 tabs
+
+Location of Important Files:
+- Scripts: scripts/01-07 (data pipeline)
+- Dashboard: app/experiment.py (main dashboard), app/dashboard.html (static export)
+- Config: config/stock_universe.py (parameters)
+- Data: data/news/, data/prices/, data/analysis/, data/trades/
+- Docs: README.md, docs/manifest.txt, docs/techstack.txt
+- Dependencies: requirements.txt
+
+Operational Notes:
+- API Rate Limit: Polygon.io allows 5 req/min (batch fetcher sleeps 13s between calls)
+- Data Gap: Run 02_fetch_news.py to fill missing dates (2025-11-18 to 2026-01-31)
+- Parameter Changes: Update config/stock_universe.py OR use dashboard sliders → Click "Run Backtest"
+- Deduplication: News fetcher merges by article_url or id fields to prevent duplicates
+- Transaction Costs: $1 per trade (fixed cost per entry/exit)
+- Position Sizing: $10,000 per trade (not user-configurable)
+
+Next Steps:
+- Run news fetcher to complete data coverage through 2026-01-31
+- Test parameter sensitivity via dashboard (sentiment threshold, hold period, stop/take profit levels)
+- Consider adding more stocks to universe or extending backtest period
+- Export HTML reports for portfolio review (trades/*.html)

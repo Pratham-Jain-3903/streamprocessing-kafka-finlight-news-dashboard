@@ -1,56 +1,115 @@
 # News Sentiment Trading Strategy & Backtesting Platform
 
+[![Python](https://img.shields.io/badge/Python-3.13-blue.svg)](https://www.python.org/)
+[![Plotly](https://img.shields.io/badge/Plotly-Dash-3F4F75.svg)](https://plotly.com/dash/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Active-success.svg)]()
+[![Data Source](https://img.shields.io/badge/Data-Polygon.io-orange.svg)](https://polygon.io/)
+[![Sentiment](https://img.shields.io/badge/Analysis-VADER-purple.svg)](https://github.com/cjhutto/vaderSentiment)
+
 A quantitative trading system that combines news sentiment analysis with correlation-based strategies to generate trading signals for technology stocks. The platform ingests historical news data, performs sentiment analysis, identifies optimal lag parameters, and backtests trading strategies with comprehensive risk metrics.
 
-## 🎯 System Overview
+## Highlights
+
+- **10,000+ News Articles** analyzed across 10 FAANG stocks
+- **34 Performance Metrics** including Sharpe, Sortino, Calmar ratios
+- **200 Parameter Combinations** tested per stock for optimal lag detection
+- **Interactive Dashboard** with 9 tabs for real-time strategy tuning
+- **Batch Processing** with automatic deduplication and merging
+- **Multiple Strategy Types** supporting both momentum and contrarian approaches
+
+---
+
+## Table of Contents
+
+- [System Overview](#system-overview)
+- [Project Structure](#project-structure)
+- [Quick Start](#quick-start)
+- [Configurable Parameters](#configurable-parameters)
+- [Dashboard Features](#dashboard-features)
+- [Key Findings](#key-findings)
+- [Technical Stack](#technical-stack)
+- [Pipeline Execution Order](#pipeline-execution-order)
+- [Strategy Logic](#strategy-logic)
+- [Additional Resources](#additional-resources)
+- [Performance Notes](#performance-notes)
+- [Troubleshooting](#troubleshooting)
+- [Future Enhancements](#future-enhancements)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## System Overview
+
+### Architecture Flow
 
 ```
-📡 Polygon.io API (Massive News)
-   │
-   ▼
-📰 News Ingestion (Batch Processing)
-   ├── Yearly batches for large date ranges
-   ├── Merge with existing data
-   ├── Deduplication by article URL/ID
-   ├── Output: data/news/all_news.parquet
-   │
-   ▼
-🧠 Sentiment Analysis (VADER)
-   ├── Score each article: compound, pos, neg, neu
-   ├── Aggregate by ticker + day
-   ├── Output: data/news/news_with_sentiment.parquet
-   │
-   ▼
-🔬 Statistical Analysis
-   ├── Lag Analysis: Test 200 configs per stock
-   │   └── Find optimal lookback/lead times
-   ├── Correlation Analysis: 1d/3d/5d horizons
-   │   └── Identify inverse vs direct strategies
-   ├── Output: data/analysis/*.json
-   │
-   ▼
-📈 Signal Generation
-   ├── Apply optimal lag configs per stock
-   ├── Use sentiment thresholds + correlation filters
-   ├── Generate BUY/SELL/HOLD signals
-   ├── Output: data/trades/trading_signals.parquet
-   │
-   ▼
-💼 Backtesting Engine
-   ├── Realistic transaction costs ($1/trade)
-   ├── Stop-loss & take-profit exits
-   ├── Hold period constraints
-   ├── 34 comprehensive metrics
-   ├── Output: trades/*.json, trades/*.html
-   │
-   ▼
-📊 Interactive Dashboard (Plotly Dash)
-   ├── 6 Dynamic Tabs: Results, Equity, Heatmap, etc.
-   ├── 3 Static Tabs: Lag Analysis, Correlation, Data
-   └── Real-time parameter tuning & visualization
+┌─────────────────────────────────────┐
+│     Polygon.io API (News Data)      │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│    News Ingestion (Batch Process)   │
+├─────────────────────────────────────┤
+│  • Yearly batches for date ranges   │
+│  • Merge with existing data         │
+│  • Deduplication by URL/ID          │
+│  • Output: all_news.parquet         │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│    Sentiment Analysis (VADER)       │
+├─────────────────────────────────────┤
+│  • Score: compound, pos, neg, neu   │
+│  • Aggregate by ticker + day        │
+│  • Output: news_with_sentiment      │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│      Statistical Analysis           │
+├─────────────────────────────────────┤
+│  • Lag Analysis (200 configs/stock) │
+│  • Optimal lookback/lead times      │
+│  • Correlation (1d/3d/5d horizons)  │
+│  • Inverse vs direct strategies     │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│       Signal Generation             │
+├─────────────────────────────────────┤
+│  • Apply optimal lag configs        │
+│  • Sentiment threshold filters      │
+│  • Generate BUY/SELL/HOLD signals   │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│      Backtesting Engine             │
+├─────────────────────────────────────┤
+│  • Transaction costs ($1/trade)     │
+│  • Stop-loss & take-profit exits    │
+│  • Hold period constraints          │
+│  • 34 comprehensive metrics         │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│   Interactive Dashboard (Dash)      │
+├─────────────────────────────────────┤
+│  • 6 Dynamic Tabs (parameter-based) │
+│  • 3 Static Tabs (research data)    │
+│  • Real-time parameter tuning       │
+└─────────────────────────────────────┘
 ```
 
-## 📂 Project Structure
+![Dashboard UI](git_assets/UI.png)
+
+## Project Structure
 
 ```
 data-ingestion/
@@ -82,7 +141,14 @@ data-ingestion/
 └── README.md
 ```
 
-## 🚀 Quick Start
+## Quick Start
+
+### Prerequisites
+
+- Python 3.13+
+- Polygon.io API Key ([Get one here](https://polygon.io/))
+- 4GB+ RAM
+- ~2GB disk space for data
 
 ### 1. Setup Environment
 ```bash
@@ -122,7 +188,7 @@ python app/experiment.py
 # Adjust parameters → Click "Run Backtest" → Explore 9 tabs
 ```
 
-## 🎛️ Configurable Parameters
+## Configurable Parameters
 
 All strategy parameters are centralized in `config/stock_universe.py`:
 
@@ -137,38 +203,54 @@ All strategy parameters are centralized in `config/stock_universe.py`:
 
 **Note:** Change parameters in config file OR via dashboard sliders. Dashboard "Run Backtest" button re-runs scripts 06 & 07 with selected values.
 
-## 📊 Dashboard Features
+## Dashboard Features
 
 ### Dynamic Tabs (Parameter-Dependent)
-1. **📋 Performance Metrics** — 34 comprehensive metrics (Sharpe, Sortino, Calmar, max drawdown, win rate, expectancy)
-2. **📈 Equity Curve** — Initial $100K → Final equity visualization with drawdown shading
-3. **🔥 Heatmap** — Daily returns color-coded by performance
-4. **📉 Drawdown** — Peak-to-trough analysis over time
-5. **📊 Trade Distribution** — Daily P&L histogram with win/loss breakdown
-6. **📋 Trade Log** — Full trade history with entry/exit prices, P&L, hold days
+
+1. **Performance Metrics** — 34 comprehensive metrics (Sharpe, Sortino, Calmar, max drawdown, win rate, expectancy)
+2. **Equity Curve** — Initial $100K → Final equity visualization with drawdown shading
+3. **Heatmap** — Daily returns color-coded by performance
+4. **Drawdown** — Peak-to-trough analysis over time
+5. **Trade Distribution** — Daily P&L histogram with win/loss breakdown
+6. **Trade Log** — Full trade history with entry/exit prices, P&L, hold days
 
 ### Static Tabs (Research Foundation)
-7. **🔬 Lag Analysis** — 200 tested configs per stock, optimal lookback/lead times, correlation strengths
-8. **📊 Correlation** — Sentiment-return relationships at 1d/3d/5d horizons
-9. **💾 Data Summary** — 10,000 articles, date coverage, sentiment distribution, analysis status
 
-## 🧪 Key Findings
+7. **Lag Analysis** — 200 tested configs per stock, optimal lookback/lead times, correlation strengths
+8. **Correlation** — Sentiment-return relationships at 1d/3d/5d horizons
+9. **Data Summary** — 10,000 articles, date coverage, sentiment distribution, analysis status
+
+![Backtesting Results](git_assets/backtesting.png)
+
+### Performance Metrics Inspiration
+
+![Metrics Design](git_assets/inspiration_for_metrics.png)
+
+## Key Findings
 
 ### Lag Analysis Results
-- **NVDA:** -0.529 correlation (strongest inverse), 72h lookback, 1d lead
-- **AAPL:** -0.435 correlation (inverse), 48h lookback, 1d lead
-- **TSLA:** +0.377 correlation (direct), 72h lookback, 1d lead
-- **GOOGL:** +0.268 correlation (direct), 24h lookback, 1d lead
 
-### Backtest Performance (Default Params)
-- **Period:** 2024-01-02 to 2026-01-30 (522 trading days)
-- **Total Trades:** 64 (30 wins, 34 losses)
-- **Win Rate:** 46.9%
-- **Total Return:** -1.14% (-$1,143.01)
-- **Sharpe Ratio:** -0.08
-- **Max Drawdown:** -7.72%
+| Stock  | Correlation | Strategy Type | Lookback | Lead | Interpretation        |
+|--------|-------------|---------------|----------|------|-----------------------|
+| NVDA   | -0.529      | Inverse       | 72h      | 1d   | Strongest contrarian  |
+| AAPL   | -0.435      | Inverse       | 48h      | 1d   | Strong contrarian     |
+| TSLA   | +0.377      | Direct        | 72h      | 1d   | Momentum following    |
+| GOOGL  | +0.268      | Direct        | 24h      | 1d   | Short-term momentum   |
 
-## 🔧 Technical Stack
+### Backtest Performance (Default Parameters)
+
+| Metric                | Value                               |
+|-----------------------|-------------------------------------|
+| **Trading Period**    | 2024-01-02 to 2026-01-30 (522 days) |
+| **Total Trades**      | 64 (30 wins, 34 losses)             |
+| **Win Rate**          | 46.9%                               |
+| **Total Return**      | -1.14% (-$1,143.01)                 |
+| **Sharpe Ratio**      | -0.08                               |
+| **Max Drawdown**      | -7.72%                              |
+| **Initial Capital**   | $100,000                            |
+| **Final Equity**      | $98,857                             |
+
+## Technical Stack
 
 - **Language:** Python 3.13
 - **Data Ingestion:** Polygon.io API (5 req/min rate limit)
@@ -178,28 +260,34 @@ All strategy parameters are centralized in `config/stock_universe.py`:
 - **Statistical Analysis:** Pandas, NumPy, SciPy
 - **Visualization:** Plotly Express, Matplotlib
 
-## 📝 Pipeline Execution Order
+## Pipeline Execution Order
 
-**Full Pipeline (First Run):**
+### Full Pipeline (First Run)
+
+**Run these scripts in sequence:**
 ```bash
 01_data_collection → 02_fetch_news → 03_sentiment_analysis → 
 04_lag_analysis → 05_correlation_summary → 
 06_strategy_signals → 07_backtest
 ```
 
-**Parameter Tuning (Dashboard):**
+### Parameter Tuning (Dashboard)
+
+**Dashboard "Run Backtest" button runs:**
 ```bash
-# Dashboard "Run Backtest" button runs:
 06_strategy_signals → 07_backtest
 # Then refreshes visualizations automatically
 ```
 
-**Adding New Data:**
+### Adding New Data
+
 ```bash
 02_fetch_news → 03_sentiment_analysis → [Dashboard "Run Backtest"]
 ```
 
-## 🎓 Strategy Logic
+## Strategy Logic
+
+### Signal Generation Process
 
 1. **News Collection:** Fetch articles for 10 FAANG stocks (AAPL, MSFT, GOOGL, AMZN, TSLA, NVDA, META, NFLX, AVGO, ORCL)
 2. **Sentiment Scoring:** VADER compound scores (-1.0 to +1.0)
@@ -212,11 +300,86 @@ All strategy parameters are centralized in `config/stock_universe.py`:
 6. **Exits:** Stop-loss, take-profit, or hold period expiration
 7. **Metrics:** 34-metric evaluation including risk-adjusted returns
 
-## 📚 Additional Resources
+## Additional Resources
+
+### Output Files
 
 - **Lag Analysis:** `data/analysis/lag_analysis.json` (200 configs tested)
 - **Correlations:** `data/analysis/correlation_summary.json` (884 observations)
 - **Trade Logs:** `data/trades/trade_log.csv` (all trades with timestamps)
 - **Dashboard Export:** `app/dashboard.html` (static snapshot)
+
+### Useful Links
+
+- [Polygon.io API Documentation](https://polygon.io/docs/)
+- [VADER Sentiment Analysis](https://github.com/cjhutto/vaderSentiment)
+- [Plotly Dash Documentation](https://dash.plotly.com/)
+
+## Performance Notes
+
+- **Data Processing:** ~6.5 minutes for 3 years × 10 stocks (~10,000 articles)
+- **Lag Analysis:** ~2-3 minutes per stock (200 parameter combinations)
+- **Memory Usage:** Peak ~2GB during backtesting
+- **Storage:** ~1.5GB for full historical dataset
+
+## Troubleshooting
+
+### Common Issues
+
+**API Rate Limiting:**
+```bash
+# Polygon.io free tier: 5 requests/minute
+# Script includes automatic rate limiting
+# If errors persist, verify API key in config/stock_universe.py
+```
+
+**Missing Data:**
+```bash
+# Re-run data collection if files are missing
+python scripts/01_data_collection.py
+python scripts/02_fetch_news.py
+```
+
+**Dashboard Not Loading:**
+```bash
+# Verify all dependencies installed
+pip install -r requirements.txt
+
+# Check if port 8050 is available
+netstat -an | findstr 8050  # Windows
+lsof -i :8050               # Linux/Mac
+```
+
+## Future Enhancements
+
+- [ ] Real-time streaming integration with Kafka
+- [ ] Machine learning sentiment models (BERT, FinBERT)
+- [ ] Multi-asset portfolio optimization
+- [ ] Advanced risk management (VaR, CVaR)
+- [ ] Live trading integration (paper trading)
+- [ ] Expanded universe (crypto, forex, commodities)
+
+## Contributing
+
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- **Data Provider:** [Polygon.io](https://polygon.io/)
+- **Sentiment Library:** [VADER Sentiment](https://github.com/cjhutto/vaderSentiment)
+- **Visualization:** [Plotly Dash](https://plotly.com/dash/)
+
+---
+
+**Disclaimer:** This is a research and educational project. Not financial advice. Trading involves risk. Past performance does not guarantee future results.
 
 

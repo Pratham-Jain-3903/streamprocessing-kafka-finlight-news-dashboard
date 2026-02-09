@@ -1,4 +1,4 @@
-# News Sentiment Trading Strategy & Backtesting Platform
+# Project Mercury: News Sentiment Trading Strategy & Backtesting Platform
 
 [![Python](https://img.shields.io/badge/Python-3.13-blue.svg)](https://www.python.org/)
 [![Plotly](https://img.shields.io/badge/Plotly-Dash-3F4F75.svg)](https://plotly.com/dash/)

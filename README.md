@@ -11,7 +11,7 @@ A quantitative trading system that combines news sentiment analysis with correla
 
 ## Origin Story
 
-This project was inspired by [a Yahoo Finance article](https://finance.yahoo.com/news/nvidia-rally-shows-deepseek-fears-152216506.html) on January 26th about NVDA's stock performance, which demonstrated that the DeepSeek-based market anxiety was just that—anxiety. The article, combined with year-end analyses of best-performing shares, sparked a fundamental question: **Can sentiments dictate returns? Can narratives lead to profits? And if yes, how agile do we need to be?**
+This project was inspired by [a Yahoo Finance article](https://finance.yahoo.com/news/nvidia-rally-shows-deepseek-fears-152216506.html) on January 26th about NVDA's stock performance, which demonstrated that the DeepSeek-based market anxiety was just that—anxiety. The article, combined with year-end analyses of best-performing shares, sparked a fundamental question: **Can sentiments dictate long term which stocks have highest returns? And if yes, how far can we get from common news article apis ?**
 
 As a Software Engineer in the Data and ML domain, I wanted to quantify the Sharpe ratio of such a strategy and understand the optimal lookback periods for capturing sentiment-driven alpha. I selected the top 10 S&P 500 stocks and began with metrics from [this Zerodha varsity video](https://zerodha.com/varsity/) as my foundation (see image below).
 

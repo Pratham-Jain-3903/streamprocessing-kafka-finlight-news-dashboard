@@ -21,7 +21,9 @@ As a Software Engineer in the Data and ML domain, I wanted to quantify the Sharp
 
 **Initial Framework:** Started with basic backtest metrics  
 **Enhanced Analysis:** Added Sharpe, Sortino, Calmar, Beta, and Alpha calculations to determine if I could simply ride the Beta or extract meaningful alpha  
-**Current Performance:** After extensive parameter tuning, achieved **12% returns with only 4.4% maximum drawdown**
+**Best Performance Achieved:** **24.6% total returns** (13.76% annualized) with Sharpe ratio of 0.65, though with higher drawdown (~29%) indicating room for risk management improvements
+
+> **Latest Results:** For the most recent backtest performance, see the JSON files in the [`trades/`](trades/) folder. Each backtest run generates detailed metrics and trade logs with timestamps.
 
 ### Ongoing Improvements
 
@@ -36,7 +38,7 @@ As a Software Engineer in the Data and ML domain, I wanted to quantify the Sharp
 
 ## Highlights
 
-- **10,000+ News Articles** analyzed across 10 FAANG stocks
+- **13,000+ News Articles** analyzed across 10 FAANG stocks from Jan 2024-Jan 2026
 - **34 Performance Metrics** including Sharpe, Sortino, Calmar ratios
 - **200 Parameter Combinations** tested per stock for optimal lag detection
 - **Interactive Dashboard** with 9 tabs for real-time strategy tuning
@@ -260,18 +262,23 @@ All strategy parameters are centralized in `config/stock_universe.py`:
 | TSLA   | +0.377      | Direct        | 72h      | 1d   | Momentum following    |
 | GOOGL  | +0.268      | Direct        | 24h      | 1d   | Short-term momentum   |
 
-### Backtest Performance (Default Parameters)
+### Backtest Performance (Example Run)
 
 | Metric                | Value                               |
 |-----------------------|-------------------------------------|
 | **Trading Period**    | 2024-01-02 to 2026-01-30 (522 days) |
-| **Total Trades**      | 64 (30 wins, 34 losses)             |
-| **Win Rate**          | 46.9%                               |
-| **Total Return**      | -1.14% (-$1,143.01)                 |
-| **Sharpe Ratio**      | -0.08                               |
-| **Max Drawdown**      | -7.72%                              |
+| **Total Trades**      | 25 (7 wins, 18 losses)              |
+| **Win Rate**          | 28.0%                               |
+| **Total Return**      | +24.6% (+$24,601.51)                |
+| **Annualized Return** | 13.76%                              |
+| **Sharpe Ratio**      | 0.647                               |
+| **Sortino Ratio**     | 0.658                               |
+| **Calmar Ratio**      | 0.467                               |
+| **Max Drawdown**      | -29.45%                             |
 | **Initial Capital**   | $100,000                            |
-| **Final Equity**      | $98,857                             |
+| **Final Equity**      | $124,601.51                         |
+
+> **Note:** Performance varies significantly based on parameter configuration. The above represents one optimized configuration. See [`trades/backtest_summary_*.json`](trades/) for detailed results from different parameter combinations and the latest runs.
 
 ## Technical Stack
 

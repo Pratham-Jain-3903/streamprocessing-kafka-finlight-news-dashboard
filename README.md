@@ -9,6 +9,31 @@
 
 A quantitative trading system that combines news sentiment analysis with correlation-based strategies to generate trading signals for technology stocks. The platform ingests historical news data, performs sentiment analysis, identifies optimal lag parameters, and backtests trading strategies with comprehensive risk metrics.
 
+## Origin Story
+
+This project was inspired by [a Yahoo Finance article](https://finance.yahoo.com/news/nvidia-rally-shows-deepseek-fears-152216506.html) on January 26th about NVDA's stock performance, which demonstrated that the DeepSeek-based market anxiety was just that—anxiety. The article, combined with year-end analyses of best-performing shares, sparked a fundamental question: **Can sentiments dictate returns? Can narratives lead to profits? And if yes, how agile do we need to be?**
+
+As a Software Engineer in the Data and ML domain, I wanted to quantify the Sharpe ratio of such a strategy and understand the optimal lookback periods for capturing sentiment-driven alpha. I selected the top 10 S&P 500 stocks and began with metrics from [this Zerodha varsity video](https://zerodha.com/varsity/) as my foundation (see image below).
+
+![Original Metrics Framework](git_assets/inspiration_for_metrics.png)
+
+### Evolution & Results
+
+**Initial Framework:** Started with basic backtest metrics  
+**Enhanced Analysis:** Added Sharpe, Sortino, Calmar, Beta, and Alpha calculations to determine if I could simply ride the Beta or extract meaningful alpha  
+**Current Performance:** After extensive parameter tuning, achieved **12% returns with only 4.4% maximum drawdown**
+
+### Ongoing Improvements
+
+**Current Limitations:**  
+- Sentiment data sourced from no-name websites via third-party aggregators  
+- Single sentiment model (VADER) with limited domain adaptation
+
+**Planned Enhancements:**  
+- Integration with premium fintech news sources (Bloomberg, Reuters, WSJ)  
+- Ensemble sentiment models (VADER + FinBERT + custom fine-tuned transformers)  
+- Real-time news processing pipeline for reduced lag
+
 ## Highlights
 
 - **10,000+ News Articles** analyzed across 10 FAANG stocks
@@ -22,6 +47,8 @@ A quantitative trading system that combines news sentiment analysis with correla
 
 ## Table of Contents
 
+- [Origin Story](#origin-story)
+- [Highlights](#highlights)
 - [System Overview](#system-overview)
 - [Project Structure](#project-structure)
 - [Quick Start](#quick-start)
@@ -221,10 +248,6 @@ All strategy parameters are centralized in `config/stock_universe.py`:
 9. **Data Summary** — 10,000 articles, date coverage, sentiment distribution, analysis status
 
 ![Backtesting Results](git_assets/backtesting.png)
-
-### Performance Metrics Inspiration
-
-![Metrics Design](git_assets/inspiration_for_metrics.png)
 
 ## Key Findings
 
